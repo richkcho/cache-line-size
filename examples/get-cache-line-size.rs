@@ -1,8 +1,8 @@
-use cache_size::{cache_line_size, CacheLevel, CacheType};
+use cache_line_size::{CacheLevel, CacheType, cache_line_size};
 use clap::{Parser, ValueEnum};
 use std::process;
 
-// Could use libc, but that adds a dependency for a simple constant, which feels silly. 
+// Could use libc, but that adds a dependency for a simple constant, which feels silly.
 const ENOTSUP: i32 = -134; // Operation not supported
 
 #[derive(Parser)]

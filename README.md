@@ -1,7 +1,6 @@
-# cache-size
-[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause) [![Crates.io](https://img.shields.io/crates/v/cache-size.svg)](https://crates.io/crates/cache-size) [![Documentation](https://docs.rs/cache-size/badge.svg)](https://docs.rs/cache-size) ![Continuous Integration](https://github.com/lovesegfault/cache-size/workflows/Continuous%20Integration/badge.svg)
+# cache-line-size
 
-A library to quickly get the size and line size of your CPU caches.
+A library to quickly get the cache line size of your CPU caches. 
 
 Currently this crate only supports x86 CPUs, since it relies on the `CPUID` instruction, via
 the [`raw_cpuid`][raw_cpuid] crate. It is a goal to support other architectures; PRs are

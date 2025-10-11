@@ -35,13 +35,3 @@ repos:
       types: [rust]
       language: system
       pass_filenames: false
-    - id: nixpkgs-fmt
-      entry: nixpkgs-fmt
-      types: [nix]
-      language: system
-      name: nixpkgs-fmt
-    - id: statix
-      entry: statix check
-      types: [nix]
-      language: system
-      name: statix

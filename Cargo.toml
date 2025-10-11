@@ -1,18 +1,11 @@
 [package]
-authors = ["Bernardo Meurer <meurerbernardo@gmail.com>"]
-description = "A library for finding your L1/L2/L3 cache sizes "
+name = "cache-line-size"
 version = "0.8.0"
-
 categories = ["hardware-support", "memory-management"]
-edition = "2018"
+edition = "2024"
 keywords = ["memory", "performance", "line", "size", "cache"]
 license = "BSD-3-Clause"
-name = "cache-size"
 readme = "./README.md"
-repository = "https://github.com/lovesegfault/cache-size"
-
-[badges]
-maintenance = { status = "actively-developed" }
 
 [target.'cfg(target_arch = "x86")'.dependencies]
 raw-cpuid = "11"
