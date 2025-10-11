@@ -1,4 +1,4 @@
-use cache_line_size::{CacheLevel, CacheType, cache_line_size};
+use cache_line_size::{CacheLevel, CacheType, get_cache_line_size};
 use clap::{Parser, ValueEnum};
 use std::process;
 
@@ -59,7 +59,7 @@ fn main() {
     let level = CacheLevel::from(args.level);
     let cache_type: CacheType = CacheType::from(args.cache_type);
 
-    match cache_line_size(level, cache_type) {
+    match get_cache_line_size(level, cache_type) {
         Some(size) => {
             println!(
                 "{:?} {:?} cache line size: {} bytes",

@@ -1,26 +1,10 @@
 use crate::{CacheLevel, CacheType};
 
-/// Returns the total size in bytes of `level` cache with type `cache_type`.
-///
-/// This is the implementation for unsupported architectures, and always returns None.
-#[inline]
-pub fn cache_size(_level: CacheLevel, _cache_type: CacheType) -> Option<usize> {
-    None
-}
-
 /// Returns the line size in bytes of `level` cache with type `cache_type`.
 ///
 /// This is the implementation for unsupported architectures, and always returns None.
 #[inline]
-pub fn cache_line_size(_level: CacheLevel, _cache_type: CacheType) -> Option<usize> {
-    None
-}
-
-/// Returns the total size in bytes of of the L1 data cache.
-///
-/// This is the implementation for unsupported architectures, and always returns None.
-#[inline]
-pub fn l1_cache_size() -> Option<usize> {
+pub fn get_cache_line_size(_level: CacheLevel, _cache_type: CacheType) -> Option<usize> {
     None
 }
 
@@ -28,8 +12,8 @@ pub fn l1_cache_size() -> Option<usize> {
 ///
 /// This is the implementation for unsupported architectures, and always returns None.
 #[inline]
-pub fn l1_cache_line_size() -> Option<usize> {
-    cache_line_size(CacheLevel::L1, CacheType::Data)
+pub fn get_l1_cache_line_size() -> Option<usize> {
+    get_cache_line_size(CacheLevel::L1, CacheType::Data)
 }
 
 /// Returns the total size in bytes of the unified L2 cache.
