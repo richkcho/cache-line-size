@@ -1,6 +1,5 @@
+use crate::{CacheLevel, CacheType};
 use raw_cpuid::{self, CpuId, CpuIdReaderNative};
-
-pub use raw_cpuid::CacheType;
 
 /// Uses the CPUID family info to detect Zen architecture CPUs.
 ///
@@ -18,12 +17,14 @@ fn amd_is_zen(cpuid: &CpuId<CpuIdReaderNative>) -> Option<bool> {
 #[inline]
 fn generic_cache_size(
     cpuid: CpuId<CpuIdReaderNative>,
-    level: u8,
+    level: CacheLevel,
     cache_type: CacheType,
 ) -> Option<usize> {
+    let level_id: u8 = level.into();
+    let cache_kind: raw_cpuid::CacheType = cache_type.into();
     cpuid
         .get_cache_parameters()?
-        .filter(|c| c.level() == level && c.cache_type() == cache_type)
+        .filter(|c| c.level() == level_id && c.cache_type() == cache_kind)
         .map(|c| c.sets() * c.associativity() * c.coherency_line_size())
         .min()
 }
@@ -33,20 +34,20 @@ fn generic_cache_size(
 #[inline]
 fn amd_cache_size(
     cpuid: CpuId<CpuIdReaderNative>,
-    level: u8,
+    level: CacheLevel,
     cache_type: CacheType,
 ) -> Option<usize> {
     match (level, cache_type) {
-        (1, CacheType::Instruction) => cpuid
+        (CacheLevel::L1, CacheType::Instruction) => cpuid
             .get_l1_cache_and_tlb_info()
             .map(|i| i.icache_size() as usize * 1024),
-        (1, CacheType::Data) => cpuid
+        (CacheLevel::L1, CacheType::Data) => cpuid
             .get_l1_cache_and_tlb_info()
             .map(|i| i.icache_size() as usize * 1024),
-        (2, CacheType::Unified) => cpuid
+        (CacheLevel::L2, CacheType::Unified) => cpuid
             .get_l2_l3_cache_and_tlb_info()
             .map(|i| i.l2cache_size() as usize * 1024),
-        (3, CacheType::Unified) => cpuid
+        (CacheLevel::L3, CacheType::Unified) => cpuid
             .get_l2_l3_cache_and_tlb_info()
             .map(|i| i.l3cache_size() as usize * 1024),
         _ => None,
@@ -66,7 +67,7 @@ fn amd_cache_size(
 /// On other architectures this is computed as `associativity * line_size * sets`, and if there are multiple caches
 /// available, it returns the size of the **smallest** cache.
 #[inline]
-pub fn cache_size(level: u8, cache_type: CacheType) -> Option<usize> {
+pub fn cache_size(level: CacheLevel, cache_type: CacheType) -> Option<usize> {
     let cpuid = CpuId::new();
     match cpuid.get_vendor_info()?.as_str() {
         "AuthenticAMD" if amd_is_zen(&cpuid).unwrap_or(false) => {
@@ -80,12 +81,14 @@ pub fn cache_size(level: u8, cache_type: CacheType) -> Option<usize> {
 #[inline]
 fn generic_cache_line_size(
     cpuid: CpuId<CpuIdReaderNative>,
-    level: u8,
+    level: CacheLevel,
     cache_type: CacheType,
 ) -> Option<usize> {
+    let level_id: u8 = level.into();
+    let cache_kind: raw_cpuid::CacheType = cache_type.into();
     cpuid
         .get_cache_parameters()?
-        .filter(|cparams| cparams.level() == level && cparams.cache_type() == cache_type)
+        .filter(|cparams| cparams.level() == level_id && cparams.cache_type() == cache_kind)
         .map(|cparams| cparams.coherency_line_size())
         .min()
 }
@@ -95,20 +98,20 @@ fn generic_cache_line_size(
 #[inline]
 fn amd_cache_line_size(
     cpuid: CpuId<CpuIdReaderNative>,
-    level: u8,
+    level: CacheLevel,
     cache_type: CacheType,
 ) -> Option<usize> {
     match (level, cache_type) {
-        (1, CacheType::Instruction) => cpuid
+        (CacheLevel::L1, CacheType::Instruction) => cpuid
             .get_l1_cache_and_tlb_info()
             .map(|i| i.icache_line_size() as usize),
-        (1, CacheType::Data) => cpuid
+        (CacheLevel::L1, CacheType::Data) => cpuid
             .get_l1_cache_and_tlb_info()
             .map(|i| i.dcache_line_size() as usize),
-        (2, CacheType::Unified) => cpuid
+        (CacheLevel::L2, CacheType::Unified) => cpuid
             .get_l2_l3_cache_and_tlb_info()
             .map(|i| i.l2cache_line_size() as usize),
-        (3, CacheType::Unified) => cpuid
+        (CacheLevel::L3, CacheType::Unified) => cpuid
             .get_l2_l3_cache_and_tlb_info()
             .map(|i| i.l3cache_line_size() as usize),
         _ => None,
@@ -129,7 +132,7 @@ fn amd_cache_line_size(
 /// [`coherency_line_size()`](raw_cpuid::CacheParameter::coherency_line_size),
 /// and if there are multiple caches available, it returns the size of the **smallest** cache.
 #[inline]
-pub fn cache_line_size(level: u8, cache_type: CacheType) -> Option<usize> {
+pub fn cache_line_size(level: CacheLevel, cache_type: CacheType) -> Option<usize> {
     let cpuid = CpuId::new();
     match cpuid.get_vendor_info()?.as_str() {
         "AuthenticAMD" if amd_is_zen(&cpuid).unwrap_or(false) => {
@@ -149,7 +152,7 @@ pub fn cache_line_size(level: u8, cache_type: CacheType) -> Option<usize> {
 /// available, it returns the size of the **smallest** cache.
 #[inline]
 pub fn l1_cache_size() -> Option<usize> {
-    cache_size(1, CacheType::Data)
+    cache_size(CacheLevel::L1, CacheType::Data)
 }
 
 /// Returns the line size in bytes of the L1 data cache.
@@ -162,7 +165,7 @@ pub fn l1_cache_size() -> Option<usize> {
 /// and if there are multiple caches available, it returns the size of the **smallest** cache.
 #[inline]
 pub fn l1_cache_line_size() -> Option<usize> {
-    cache_line_size(1, CacheType::Data)
+    cache_line_size(CacheLevel::L1, CacheType::Data)
 }
 
 /// Returns the total size in bytes of the unified L2 cache.
@@ -175,7 +178,7 @@ pub fn l1_cache_line_size() -> Option<usize> {
 /// available, it returns the size of the **smallest** cache.
 #[inline]
 pub fn l2_cache_size() -> Option<usize> {
-    cache_size(2, CacheType::Unified)
+    cache_size(CacheLevel::L2, CacheType::Unified)
 }
 
 /// Returns the line size in bytes of the unified L2 cache.
@@ -188,7 +191,7 @@ pub fn l2_cache_size() -> Option<usize> {
 /// and if there are multiple caches available, it returns the size of the **smallest** cache.
 #[inline]
 pub fn l2_cache_line_size() -> Option<usize> {
-    cache_line_size(2, CacheType::Unified)
+    cache_line_size(CacheLevel::L2, CacheType::Unified)
 }
 
 /// Returns the total size in bytes of the unified L3 cache.
@@ -201,7 +204,7 @@ pub fn l2_cache_line_size() -> Option<usize> {
 /// available, it returns the size of the **smallest** cache.
 #[inline]
 pub fn l3_cache_size() -> Option<usize> {
-    cache_size(3, CacheType::Unified)
+    cache_size(CacheLevel::L3, CacheType::Unified)
 }
 
 /// Returns the line size in bytes of the unified L3 cache.
@@ -214,7 +217,7 @@ pub fn l3_cache_size() -> Option<usize> {
 /// and if there are multiple caches available, it returns the size of the **smallest** cache.
 #[inline]
 pub fn l3_cache_line_size() -> Option<usize> {
-    cache_line_size(3, CacheType::Unified)
+    cache_line_size(CacheLevel::L3, CacheType::Unified)
 }
 
 /// Tests

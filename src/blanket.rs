@@ -1,23 +1,10 @@
-/// Info about a what a given cache caches (instructions, data, etc.)
-#[derive(PartialEq, Eq, Debug)]
-pub enum CacheType {
-    /// Null - No more caches
-    Null = 0,
-    /// Data cache
-    Data,
-    /// Instruction cache
-    Instruction,
-    /// Data and Instruction cache
-    Unified,
-    /// 4-31 = Reserved
-    Reserved,
-}
+use crate::{CacheLevel, CacheType};
 
 /// Returns the total size in bytes of `level` cache with type `cache_type`.
 ///
 /// This is the implementation for unsupported architectures, and always returns None.
 #[inline]
-pub fn cache_size(_level: u8, _cache_type: CacheType) -> Option<usize> {
+pub fn cache_size(_level: CacheLevel, _cache_type: CacheType) -> Option<usize> {
     None
 }
 
@@ -25,7 +12,7 @@ pub fn cache_size(_level: u8, _cache_type: CacheType) -> Option<usize> {
 ///
 /// This is the implementation for unsupported architectures, and always returns None.
 #[inline]
-pub fn cache_line_size(_level: u8, _cache_type: CacheType) -> Option<usize> {
+pub fn cache_line_size(_level: CacheLevel, _cache_type: CacheType) -> Option<usize> {
     None
 }
 
@@ -42,7 +29,7 @@ pub fn l1_cache_size() -> Option<usize> {
 /// This is the implementation for unsupported architectures, and always returns None.
 #[inline]
 pub fn l1_cache_line_size() -> Option<usize> {
-    cache_line_size(1, CacheType::Data)
+    cache_line_size(CacheLevel::L1, CacheType::Data)
 }
 
 /// Returns the total size in bytes of the unified L2 cache.
@@ -50,7 +37,7 @@ pub fn l1_cache_line_size() -> Option<usize> {
 /// This is the implementation for unsupported architectures, and always returns None.
 #[inline]
 pub fn l2_cache_size() -> Option<usize> {
-    cache_size(2, CacheType::Unified)
+    cache_size(CacheLevel::L2, CacheType::Unified)
 }
 
 /// Returns the line size in bytes of the unified L2 cache.
@@ -58,7 +45,7 @@ pub fn l2_cache_size() -> Option<usize> {
 /// This is the implementation for unsupported architectures, and always returns None.
 #[inline]
 pub fn l2_cache_line_size() -> Option<usize> {
-    cache_line_size(2, CacheType::Unified)
+    cache_line_size(CacheLevel::L2, CacheType::Unified)
 }
 
 /// Returns the total size in bytes of the unified L3 cache.
@@ -66,7 +53,7 @@ pub fn l2_cache_line_size() -> Option<usize> {
 /// This is the implementation for unsupported architectures, and always returns None.
 #[inline]
 pub fn l3_cache_size() -> Option<usize> {
-    cache_size(3, CacheType::Unified)
+    cache_size(CacheLevel::L3, CacheType::Unified)
 }
 
 /// Returns the line size in bytes of the unified L3 cache.
@@ -74,7 +61,7 @@ pub fn l3_cache_size() -> Option<usize> {
 /// This is the implementation for unsupported architectures, and always returns None.
 #[inline]
 pub fn l3_cache_line_size() -> Option<usize> {
-    cache_line_size(3, CacheType::Unified)
+    cache_line_size(CacheLevel::L3, CacheType::Unified)
 }
 
 #[cfg(test)]

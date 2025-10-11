@@ -7,6 +7,14 @@ Currently this crate only supports x86 CPUs, since it relies on the `CPUID` inst
 the [`raw_cpuid`][raw_cpuid] crate. It is a goal to support other architectures; PRs are
 welcome!
 
+## API overview
+
+The crate exposes two enums, [`CacheType`](https://docs.rs/cache-size/latest/cache_size/enum.CacheType.html)
+and [`CacheLevel`](https://docs.rs/cache-size/latest/cache_size/enum.CacheLevel.html), to describe
+the type of cache (data, instruction, unified, or trace) and its hierarchy level. 
+
+We also supply APIs to retrieve the cache line size for cache types and levels, returning `None` if the operation fails or is not supported. (TODO: refactor into error types)
+
 Note that the library will still compile and work on non x86 architectures, but
 the result of all the cache queries will be `None`.
 
