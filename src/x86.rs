@@ -65,16 +65,8 @@ fn amd_cache_line_size(
 /// Returns the line size in bytes of `level` cache with type `cache_type`.
 ///
 /// The only possibilities for this returning an [`Err`] are if the system does not support cache
-/// parameters, in which case [`get_cache_parameters()`](raw_cpuid::CpuId::get_cache_parameters) will
-/// fail, or if the selected cache level and/or type does not exist.
-///
-/// On an AMD Zen architecture this is computed using tlb info. Instruction and data cache line
-/// sizes are available separately for the L1 cache, but only unified is available for L2 and L3
-/// caches.
-///
-/// On other x86 architectures this is computed from
-/// [`coherency_line_size()`](raw_cpuid::CacheParameter::coherency_line_size),
-/// and if there are multiple caches available, it returns the size of the **smallest** cache.
+/// parameters, in which case we will return `CacheInfoError::NotPresent`, or if the CPU
+/// reported an invalid value, in which case we will return `CacheInfoError::InvalidValue`.
 #[inline]
 pub fn get_cache_line_size(
     level: CacheLevel,

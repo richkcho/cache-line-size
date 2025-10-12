@@ -46,10 +46,9 @@ fn decode_iminline(ctr: u64) -> Result<usize, CacheInfoError> {
 
 /// Returns the line size in bytes of `level` cache with type `cache_type`.
 ///
-/// The ARM `CTR`/`CTR_EL0` register exposes the minimum data/unified cache line
-/// size as well as the minimum L1 instruction cache line size. Data/unified
-/// cache line sizes are reported for every level because ARM architectures use a
-/// single value representing the minimum size across all data caches.
+/// The only possibilities for this returning an [`Err`] are if the system does not support cache
+/// parameters, in which case we will return `CacheInfoError::NotPresent`, or if the CPU
+/// reported an invalid value, in which case we will return `CacheInfoError::InvalidValue`.
 #[inline]
 pub fn get_cache_line_size(
     level: CacheLevel,
