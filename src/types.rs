@@ -3,19 +3,17 @@ use core::fmt;
 /// Common data structures representing CPU cache metadata.
 ///
 /// These enums are shared across all architecture specific implementations.
+
+/// Type of cache being described.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[repr(u8)]
 pub enum CacheType {
-    /// Null - No more caches
-    Null = 0,
     /// Data cache
     Data = 1,
     /// Instruction cache
     Instruction = 2,
     /// Data and Instruction cache
     Unified = 3,
-    /// 4-31 = Reserved
-    Reserved = 4,
 }
 
 /// Identifier for the cache hierarchy level being queried.
@@ -74,11 +72,9 @@ impl From<CacheType> for raw_cpuid::CacheType {
     #[inline]
     fn from(cache_type: CacheType) -> Self {
         match cache_type {
-            CacheType::Null => raw_cpuid::CacheType::Null,
             CacheType::Data => raw_cpuid::CacheType::Data,
             CacheType::Instruction => raw_cpuid::CacheType::Instruction,
             CacheType::Unified => raw_cpuid::CacheType::Unified,
-            CacheType::Reserved => raw_cpuid::CacheType::Reserved,
         }
     }
 }
@@ -88,11 +84,10 @@ impl From<raw_cpuid::CacheType> for CacheType {
     #[inline]
     fn from(cache_type: raw_cpuid::CacheType) -> Self {
         match cache_type {
-            raw_cpuid::CacheType::Null => CacheType::Null,
             raw_cpuid::CacheType::Data => CacheType::Data,
             raw_cpuid::CacheType::Instruction => CacheType::Instruction,
             raw_cpuid::CacheType::Unified => CacheType::Unified,
-            raw_cpuid::CacheType::Reserved => CacheType::Reserved,
+            _ => panic!("Unsupported cache type {} returned from CPUID", cache_type)
         }
     }
 }

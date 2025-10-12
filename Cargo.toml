@@ -1,6 +1,6 @@
 [package]
 name = "cache-line-size"
-version = "0.8.0"
+version = "0.9.0"
 categories = ["hardware-support", "memory-management"]
 edition = "2024"
 keywords = ["memory", "performance", "line", "size", "cache"]
