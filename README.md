@@ -14,9 +14,6 @@ the type of cache (data, instruction, unified, or trace) and its hierarchy level
 
 We also supply APIs to retrieve the cache line size for cache types and levels, returning `None` if the operation fails or is not supported. (TODO: refactor into error types)
 
-Note that the library will still compile and work on non x86 architectures, but
-the result of all the cache queries will be `None`.
-
 ---
 Check the [Intel 64 and IA-32 Architectures Software Developers Manual](https://software.intel.com/sites/default/files/managed/39/c5/325462-sdm-vol-1-2abcd-3abcd.pdf)
 for more information on the `CPUID` instruction.
