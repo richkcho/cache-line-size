@@ -1,0 +1,42 @@
+name: Rust
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/**
+      - examples/**
+      - Cargo.toml
+      - src/**
+      - tests/**
+  pull_request_review:
+    types: [submitted] # only run on approved PRs, so when it is submitted
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-and-test:
+    if: |
+      github.event_name == 'push' || 
+      github.event_name == 'workflow_dispatch' || 
+      (github.event_name == 'pull_request_review' && github.event.review.state == 'approved') ||
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '/run-ci') && 
+        (github.event.comment.author_association == 'COLLABORATOR' || github.event.comment.author_association == 'OWNER')
+      )
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-22.04-arm]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: cargo build --verbose
+      - name: Run cargo test
+        run: cargo test --verbose
