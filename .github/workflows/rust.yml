@@ -31,7 +31,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, ubuntu-22.04-arm]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -40,11 +40,11 @@ jobs:
         run: cargo build --verbose
       - name: Run cargo test
         run: cargo test --verbose
-      - name: Compare L3 unified cache line size with Linux
+      - name: Compare L1 data cache line size with Linux
         run: |
           set -euo pipefail
 
-          cargo_output=$(cargo run --quiet --example get-cache-line-size -- l3 unified)
+          cargo_output=$(cargo run --quiet --example get-cache-line-size -- l1 data)
           echo "Rust example output: $cargo_output"
           cargo_value=$(echo "$cargo_output" | grep -oE '[0-9]+' | tail -n1)
           cargo_value=$(echo "$cargo_value" | tr -d '[:space:]')
@@ -54,24 +54,10 @@ jobs:
             exit 1
           fi
 
-          linux_value=$(getconf LEVEL3_CACHE_LINESIZE || true)
-          linux_value=$(echo "$linux_value" | tr -d '[:space:]')
-
-          if [ -n "$linux_value" ]; then
-            :
-          else
-            sysfs_path="/sys/devices/system/cpu/cpu0/cache/index3/coherency_line_size"
-            if [ -r "$sysfs_path" ]; then
-              linux_value=$(cat "$sysfs_path")
-            fi
+          linux_value=$(getconf LEVEL1_DCACHE_LINESIZE)
+          if [ "$linux_value" -eq 0 ] 2>/dev/null || [ -z "$linux_value" ]; then
+            linux_value=$(cat /sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size 2>/dev/null)
           fi
-
-          if [ -z "$linux_value" ]; then
-            echo "Unable to retrieve L3 unified cache line size from Linux" >&2
-            exit 1
-          fi
-
-          linux_value=$(echo "$linux_value" | tr -d '[:space:]')
 
           echo "Linux reported cache line size: $linux_value"
 
