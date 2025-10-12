@@ -1,3 +1,5 @@
+use core::fmt;
+
 /// Common data structures representing CPU cache metadata.
 ///
 /// These enums are shared across all architecture specific implementations.
@@ -94,3 +96,30 @@ impl From<raw_cpuid::CacheType> for CacheType {
         }
     }
 }
+
+/// Errors that can occur while querying cache metadata.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum CacheInfoError {
+    /// The system does not expose cache metadata for the requested query.
+    Unsupported,
+    /// The requested cache level/type combination is not present.
+    NotPresent,
+    /// The CPU reported an invalid or out-of-range value.
+    InvalidValue,
+}
+
+impl fmt::Display for CacheInfoError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            CacheInfoError::Unsupported => {
+                f.write_str("retrieving cache metadata is not supported on this system")
+            }
+            CacheInfoError::NotPresent => {
+                f.write_str("the requested cache level/type combination is not present")
+            }
+            CacheInfoError::InvalidValue => f.write_str("the CPU reported invalid cache metadata"),
+        }
+    }
+}
+
+impl std::error::Error for CacheInfoError {}
