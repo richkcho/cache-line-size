@@ -8,7 +8,7 @@
 //! for more information on the `CPUID` instruction.
 
 mod types;
-pub use types::{CacheLevel, CacheType};
+pub use types::{CacheInfoError, CacheLevel, CacheType};
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 mod x86;

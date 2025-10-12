@@ -1,4 +1,4 @@
-use cache_line_size::{CacheLevel, CacheType, get_cache_line_size};
+use cache_line_size::{CacheInfoError, CacheLevel, CacheType, get_cache_line_size};
 use clap::{Parser, ValueEnum};
 use std::process;
 
@@ -60,16 +60,23 @@ fn main() {
     let cache_type: CacheType = CacheType::from(args.cache_type);
 
     match get_cache_line_size(level, cache_type) {
-        Some(size) => {
+        Ok(size) => {
             println!(
                 "{:?} {:?} cache line size: {} bytes",
                 level, cache_type, size
             );
         }
-        None => {
+        Err(CacheInfoError::NotPresent) => {
             eprintln!(
-                "Unable to retrieve cache line information for {:?} {:?} cache.",
+                "Cache {:?} {:?} is not present on this system.",
                 level, cache_type
+            );
+            process::exit(ENOTSUP);
+        }
+        Err(err) => {
+            eprintln!(
+                "Unable to retrieve cache line information for {:?} {:?} cache: {}.",
+                level, cache_type, err
             );
             process::exit(ENOTSUP);
         }
