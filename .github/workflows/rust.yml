@@ -69,3 +69,72 @@ jobs:
           fi
 
           echo "Cache line size matches between Rust example and Linux"
+      - name: Compare L1 instruction cache line size with Linux
+        run: |
+          set -euo pipefail
+
+          cargo_output=$(cargo run --quiet --example get-cache-line-size -- l1 instruction)
+          echo "Rust example output: $cargo_output"
+          cargo_value=$(echo "$cargo_output" | grep -oE '[0-9]+' | tail -n1)
+          cargo_value=$(echo "$cargo_value" | tr -d '[:space:]')
+
+          if [ -z "$cargo_value" ]; then
+            echo "Unable to parse cache line size from Rust example output" >&2
+            exit 1
+          fi
+
+          linux_value=$(getconf LEVEL1_ICACHE_LINESIZE)
+          if [ "$linux_value" -eq 0 ] 2>/dev/null || [ -z "$linux_value" ]; then
+            linux_value=$(cat /sys/devices/system/cpu/cpu0/cache/index1/coherency_line_size 2>/dev/null)
+          fi
+
+          echo "Linux reported cache line size: $linux_value"
+
+          if [ "$cargo_value" -ne "$linux_value" ]; then
+            echo "Mismatch between Rust example and Linux-reported cache line size" >&2
+            echo "Rust example: $cargo_value" >&2
+            echo "Linux reported: $linux_value" >&2
+            exit 1
+          fi
+
+          echo "Cache line size matches between Rust example and Linux"
+      - name: Compare L3 unified cache line size with Linux
+        run: |
+          set -euo pipefail
+
+          cargo_output=$(cargo run --quiet --example get-cache-line-size -- l3 unified)
+          echo "Rust example output: $cargo_output"
+          cargo_value=$(echo "$cargo_output" | grep -oE '[0-9]+' | tail -n1)
+          cargo_value=$(echo "$cargo_value" | tr -d '[:space:]')
+
+          if [ -z "$cargo_value" ]; then
+            echo "Unable to parse cache line size from Rust example output" >&2
+            exit 1
+          fi
+
+          linux_value=$(getconf LEVEL3_CACHE_LINESIZE)
+
+          # Fallback to sysfs if getconf fails or returns 0
+          if [ "$linux_value" -eq 0 ] 2>/dev/null || [ -z "$linux_value" ]; then
+            for idx in /sys/devices/system/cpu/cpu0/cache/index*/; do
+              if [ -r "${idx}level" ] && [ -r "${idx}type" ] && [ -r "${idx}coherency_line_size" ]; then
+                level=$(cat "${idx}level")
+                type=$(cat "${idx}type")
+                if [ "$level" = "3" ] && [ "$type" = "Unified" ]; then
+                  linux_value=$(cat "${idx}coherency_line_size")
+                  break
+                fi
+              fi
+            done
+          fi
+
+          echo "Linux reported cache line size: $linux_value"
+
+          if [ "$cargo_value" -ne "$linux_value" ]; then
+            echo "Mismatch between Rust example and Linux-reported cache line size" >&2
+            echo "Rust example: $cargo_value" >&2
+            echo "Linux reported: $linux_value" >&2
+            exit 1
+          fi
+
+          echo "Cache line size matches between Rust example and Linux"
