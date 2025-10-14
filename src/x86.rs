@@ -67,6 +67,13 @@ fn amd_cache_line_size(
 /// The only possibilities for this returning an [`Err`] are if the system does not support cache
 /// parameters, in which case we will return `CacheInfoError::NotPresent`, or if the CPU
 /// reported an invalid value, in which case we will return `CacheInfoError::InvalidValue`.
+/// 
+/// Example:
+/// ```
+/// use cache_line_size::{get_cache_line_size, CacheLevel, CacheType};
+/// let l1d_line_size = get_cache_line_size(CacheLevel::L1, CacheType::Data).unwrap();
+/// println!("L1 Data Cache Line Size: {} bytes", l1d_line_size);
+/// ```
 #[inline]
 pub fn get_cache_line_size(
     level: CacheLevel,
