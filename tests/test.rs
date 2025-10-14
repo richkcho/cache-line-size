@@ -43,4 +43,71 @@ mod tests {
             }
         }
     }
+
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn windows_test() {
+        use windows::Win32::System::SystemInformation::{
+            GetLogicalProcessorInformationEx, RelationCache,
+            SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX, CacheData, CacheInstruction, CacheUnified,
+        };
+
+        unsafe {
+            let mut len: u32 = 0;
+            // First call to get required buffer size (expect ERROR_INSUFFICIENT_BUFFER)
+            let _ = GetLogicalProcessorInformationEx(RelationCache, None, &mut len);
+            assert!(len > 0, "Windows API did not report buffer size for processor info");
+
+            let mut buf: Vec<u8> = vec![0u8; len as usize];
+            GetLogicalProcessorInformationEx(
+                RelationCache,
+                Some(buf.as_mut_ptr() as *mut SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX),
+                &mut len,
+            )
+            .expect("GetLogicalProcessorInformationEx failed on second call");
+
+            let mut offset = 0usize;
+            while offset < len as usize {
+                let entry_ptr =
+                    buf.as_ptr().add(offset) as *const SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX;
+                // Read possibly unaligned structure safely by value
+                let entry = std::ptr::read_unaligned(entry_ptr);
+
+                assert!(entry.Relationship == RelationCache, "Unexpected relationship type in buffer");
+
+                // Access the Cache relationship from the union
+                let cache = entry.Anonymous.Cache;
+
+                // Map Windows cache level to our CacheLevel
+                let level = match cache.Level {
+                    1 => CacheLevel::L1,
+                    2 => CacheLevel::L2,
+                    3 => CacheLevel::L3,
+                    other => CacheLevel::Other(other),
+                };
+
+                // Map Windows cache type to our CacheType
+                let ctype = match cache.Type {
+                    t if t == CacheData => CacheType::Data,
+                    t if t == CacheInstruction => CacheType::Instruction,
+                    t if t == CacheUnified => CacheType::Unified,
+                    _ => {
+                        offset += entry.Size as usize;
+                        continue;
+                    }
+                };
+
+                let line_size = cache.LineSize as usize;
+                if let Ok(cl) = get_cache_line_size(level, ctype) {
+                    assert_eq!(
+                        cl, line_size,
+                        "Mismatch for level {:?} {:?} cache: library={} windows={}",
+                        level, ctype, cl, line_size
+                    );
+                }
+
+                offset += entry.Size as usize;
+            }
+        }
+    }
 }
