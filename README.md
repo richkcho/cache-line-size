@@ -1,4 +1,4 @@
-# cache-line-size
+# [yep-]cache-line-size
 
 A library to quickly get the cache line size of your CPU caches. Forked from lovesegfault/cache-size.
 
