@@ -1,4 +1,4 @@
-use cache_line_size::{CacheInfoError, CacheLevel, CacheType, get_cache_line_size};
+use yep_cache_line_size::{CacheInfoError, CacheLevel, CacheType, get_cache_line_size};
 use clap::{Parser, ValueEnum};
 use std::process;
 

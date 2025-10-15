@@ -1,6 +1,6 @@
 # cache-line-size
 
-A library to quickly get the cache line size of your CPU caches. 
+A library to quickly get the cache line size of your CPU caches. Forked from lovesegfault/cache-size.
 
 Currently this crate supports x86 CPUs via the `CPUID` instruction, using the [`raw_cpuid`][raw_cpuid] crate. ARM (64-bit) is supported via the corresponding assembly instructions for ARM and AArch64. If you can support other architectures, PRs are welcome!
 

@@ -1,11 +1,13 @@
 [package]
-name = "cache-line-size"
-version = "0.9.0"
+name = "yep-cache-line-size"
+version = "0.9.2"
+description = "A small library for retrieving cache line sizes. Forked from lovesegfault/cache-size."
 categories = ["hardware-support", "memory-management"]
 edition = "2024"
 keywords = ["memory", "performance", "line", "size", "cache"]
 license = "BSD-3-Clause"
 readme = "./README.md"
+repository = "https://github.com/richkcho/cache-line-size"
 
 [target.'cfg(target_arch = "x86")'.dependencies]
 raw-cpuid = "11"

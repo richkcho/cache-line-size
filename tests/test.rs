@@ -1,5 +1,5 @@
 mod tests {
-    use cache_line_size::{get_cache_line_size, CacheLevel, CacheType};
+    use yep_cache_line_size::{get_cache_line_size, CacheLevel, CacheType};
 
     #[cfg(target_os = "linux")]
     #[test]

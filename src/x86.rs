@@ -70,7 +70,7 @@ fn amd_cache_line_size(
 /// 
 /// Example:
 /// ```
-/// use cache_line_size::{get_cache_line_size, CacheLevel, CacheType};
+/// use yep_cache_line_size::{get_cache_line_size, CacheLevel, CacheType};
 /// let l1d_line_size = get_cache_line_size(CacheLevel::L1, CacheType::Data).unwrap();
 /// println!("L1 Data Cache Line Size: {} bytes", l1d_line_size);
 /// ```
