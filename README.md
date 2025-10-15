@@ -1,4 +1,5 @@
 # [yep-]cache-line-size
+[![Crates.io](https://img.shields.io/crates/v/yep-cache-line-size.svg)](https://crates.io/crates/yep-cache-line-size) [![Documentation](https://docs.rs/yep-cache-line-size/badge.svg)](https://docs.rs/yep-cache-line-size) [![Rust](https://github.com/richkcho/cache-line-size/actions/workflows/rust.yml/badge.svg)](https://github.com/richkcho/cache-line-size/actions/workflows/rust.yml)
 
 A library to quickly get the cache line size of your CPU caches. Forked from lovesegfault/cache-size.
 
