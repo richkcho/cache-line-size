@@ -14,8 +14,14 @@ raw-cpuid = "11"
 [target.'cfg(target_arch = "x86_64")'.dependencies]
 raw-cpuid = "11"
 
+[target.'cfg(all(target_os = "macos", target_arch = "aarch64"))'.dependencies]
+libc = "0.2"
+
 [dev-dependencies]
 clap = { version = "4", features = ["derive"] }
+
+[target.'cfg(target_os = "macos")'.dev-dependencies]
+libc = "0.2"
 
 [target.'cfg(windows)'.dev-dependencies]
 windows = { version = "0.58", features = ["Win32_System_SystemInformation"] }

@@ -1,6 +1,21 @@
 mod tests {
     use yep_cache_line_size::{get_cache_line_size, CacheLevel, CacheType};
 
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn macos_cache_line_size_sane() {
+        let cl = get_cache_line_size(CacheLevel::L1, CacheType::Data)
+            .expect("cache line size should be available on macOS");
+        assert!(cl > 0, "cache line size should be positive");
+        let page_size = unsafe { libc::getpagesize() as usize };
+        assert!(
+            cl <= page_size,
+            "cache line size should not exceed page size (cl={}, page={})",
+            cl,
+            page_size
+        );
+    }
+
     #[cfg(target_os = "linux")]
     #[test]
     fn linux_test() {

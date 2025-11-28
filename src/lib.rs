@@ -15,7 +15,18 @@ mod x86;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub use x86::*;
 
-#[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+#[cfg(all(
+    any(target_arch = "arm", target_arch = "aarch64"),
+    not(all(target_arch = "aarch64", target_os = "macos"))
+))]
 mod arm;
-#[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+#[cfg(all(
+    any(target_arch = "arm", target_arch = "aarch64"),
+    not(all(target_arch = "aarch64", target_os = "macos"))
+))]
 pub use arm::*;
+
+#[cfg(all(target_arch = "aarch64", target_os = "macos"))]
+mod appl_arm;
+#[cfg(all(target_arch = "aarch64", target_os = "macos"))]
+pub use appl_arm::*;
