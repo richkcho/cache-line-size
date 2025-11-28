@@ -5,8 +5,8 @@ const SYSCTL_NAME: &[u8] = b"hw.cachelinesize\0";
 
 #[inline]
 fn read_cache_line_size() -> Result<usize, CacheInfoError> {
-    let mut value: libc::c_uint = 0;
-    let mut len: size_t = core::mem::size_of::<libc::c_uint>() as size_t;
+    let mut value: libc::size_t = 0;
+    let mut len: size_t = core::mem::size_of::<libc::size_t>() as size_t;
     let ret = unsafe {
         libc::sysctlbyname(
             SYSCTL_NAME.as_ptr() as *const _,
@@ -17,7 +17,8 @@ fn read_cache_line_size() -> Result<usize, CacheInfoError> {
         )
     };
 
-    if ret == 0 && len == core::mem::size_of::<libc::c_uint>() as size_t {
+    let expected = core::mem::size_of::<libc::size_t>() as size_t;
+    if ret == 0 && len > 0 && len <= expected {
         Ok(value as usize)
     } else {
         Err(CacheInfoError::Unsupported)
