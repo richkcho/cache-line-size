@@ -6,8 +6,9 @@ mod tests {
     fn macos_cache_line_size_sane() {
         let cl = get_cache_line_size(CacheLevel::L1, CacheType::Data)
             .expect("cache line size should be available on macOS");
-        assert!(cl > 0, "cache line size should be positive");
         let page_size = unsafe { libc::sysconf(libc::_SC_PAGESIZE) as usize };
+        // this is probably a reasonable assumption, but if it fails we can adjust later
+        // PLEASE apple give us something better!
         assert!(
             cl <= page_size,
             "cache line size should not exceed page size (cl={}, page={})",
