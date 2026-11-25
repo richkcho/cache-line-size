@@ -17,11 +17,17 @@ jobs:
   build-and-test:
     strategy:
       matrix:
-        os: [ubuntu-latest, ubuntu-22.04-arm, windows-latest, macos-latest]
+        os: [ubuntu-latest, ubuntu-22.04-arm, windows-latest, windows-11-arm, macos-latest]
     runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v4
+      - name: Select native Windows ARM64 target
+        if: matrix.os == 'windows-11-arm'
+        shell: pwsh
+        run: |
+          rustup target add aarch64-pc-windows-msvc
+          "CARGO_BUILD_TARGET=aarch64-pc-windows-msvc" >> $env:GITHUB_ENV
       - name: Build
         run: cargo build --verbose
       - name: Run cargo test

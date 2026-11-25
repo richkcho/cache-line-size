@@ -3,11 +3,13 @@
 
 A library to quickly get the cache line size of your CPU caches. Forked from lovesegfault/cache-size.
 
-Currently this crate supports x86 CPUs via the `CPUID` instruction, using the [`raw_cpuid`][raw_cpuid] crate. ARM (64-bit) is supported via the corresponding assembly instructions for ARM and AArch64 (if the OS allows). 
+On x86, this crate uses `CPUID` via [`raw_cpuid`](https://docs.rs/raw-cpuid). On ARM, it reads the cache type register where permitted and uses OS APIs on Windows ARM64 and Apple Silicon.
+
+Windows ARM64 uses [`GetLogicalProcessorInformationEx(RelationCache)`](https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-getlogicalprocessorinformationex) instead of reading `CTR_EL0`, which Windows does not permit in user mode. When Windows reports multiple caches for the requested level and type, the crate returns the smallest nonzero line size.
 
 ## API overview
 
-The crate exposes two enums, [`CacheType`] and [`CacheLevel`], to describe the type of cache (data, instruction, unified, or trace) and its hierarchy level. 
+The crate exposes two enums, [`CacheType`] and [`CacheLevel`], to describe the type of cache (data, instruction, or unified) and its hierarchy level.
 The cache line size is retrieved via `get_cache_line_size`.
 
 We also supply APIs to retrieve the cache line size for cache types and levels. These functions now return a `Result` with a
